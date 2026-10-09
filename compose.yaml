@@ -1,0 +1,41 @@
+
+services:
+  minecraft:
+    image: itzg/minecraft-bedrock-server:latest
+    container_name: blocktopia
+
+    restart: unless-stopped
+
+    ports:
+      - "${MINECRAFT_PORT:-19132}:19132/udp"
+
+    environment:
+      EULA: "TRUE"
+
+      SERVER_NAME: "${SERVER_NAME:-Blocktopia}"
+      LEVEL_NAME: "${LEVEL_NAME:-Blocktopia}"
+
+      GAMEMODE: "${GAMEMODE:-crative}"
+      FORCE_GAMEMODE: "true"
+      DIFFICULTY: "${DIFFICULTY:-peaceful}"
+      ALLOW_CHEATS: "${ALLOW_CHEATS:-false}"
+
+      MAX_PLAYERS: "${MAX_PLAYERS:-10}"
+      ONLINE_MODE: "true"
+
+      ALLOW_LIST: "true"
+      ALLOW_LIST_USERS: "${ALLOW_LIST_USERS:-}"
+
+      DEFAULT_PLAYER_PERMISSION_LEVEL: "member"
+
+      VIEW_DISTANCE: "10"
+      TICK_DISTANCE: "4"
+
+    volumes:
+      - "${MINECRAFT_DATA_DIR:?Defina MINECRAFT_DATA_DIR}:/data"
+
+    mem_limit: 4g
+    cpus: 2.0
+
+    stdin_open: true
+    tty: true

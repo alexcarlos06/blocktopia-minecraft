@@ -1,0 +1,23 @@
+# Configuracoes locais e segredos
+.env
+.env.*
+!.env.exemple
+
+# Dados persistentes
+minecraft-data
+cat > .gitignore << 'EOF'
+# Configuracoes locais e segredos
+.env
+.env.*
+!.env.example
+
+# Dados persistentes
+minecraft-data/
+
+data/
+backups/
+
+# Arquivos temporarios
+*.log
+*.bak
+*.tmp
