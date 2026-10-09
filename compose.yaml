@@ -23,8 +23,14 @@ services:
       MAX_PLAYERS: "${MAX_PLAYERS:-10}"
       ONLINE_MODE: "true"
 
+      # Controle de acesso
       ALLOW_LIST: "true"
       ALLOW_LIST_USERS: "${ALLOW_LIST_USERS:-}"
+
+      # Permissoes de jogadores
+      OPS: "${OPS:-}"
+      MEMBERS: "${MEMBERS:-}"
+      VISITORS: "${VISITORS:-}"
 
       DEFAULT_PLAYER_PERMISSION_LEVEL: "member"
 
