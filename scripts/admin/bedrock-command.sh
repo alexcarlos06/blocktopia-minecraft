@@ -4,10 +4,23 @@ set -euo pipefail
 CONTAINER="blocktopia"
 USER_ID="1001:1001"
 
-if [ "$#" -ne 1 ] || [ "$1" != "list" ]; then
-    echo "Uso nesta versão: $0 list" >&2
+if [ "$#" -ne 1 ]; then
+    echo "Uso: $0 list|tickingarea-list" >&2
     exit 1
 fi
+
+case "$1" in
+    list)
+        COMMAND="list"
+        ;;
+    tickingarea-list)
+        COMMAND="tickingarea list all-dimensions"
+        ;;
+    *)
+        echo "Comando não autorizado: $1" >&2
+        exit 1
+        ;;
+esac
 
 docker exec --user "$USER_ID" "$CONTAINER" sh -c '
     set -eu
@@ -37,7 +50,7 @@ docker exec --user "$USER_ID" "$CONTAINER" sh -c '
         exit 1
     fi
 
-    printf "list\n" > "/proc/$PID/fd/0"
+    printf "%s\\n" "$1" > "/proc/$PID/fd/0"
 
     echo "Comando enviado ao Bedrock (PID $PID)."
-'
+' sh "$COMMAND"
