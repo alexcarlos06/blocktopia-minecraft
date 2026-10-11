@@ -15,6 +15,7 @@ class BuildingEngine:
 
         self.origin = (x, y, z)
         self.commands = []
+        self._bounds = None
 
     def _position(self, x, y, z):
         if any(type(v) is not int for v in (x, y, z)):
@@ -37,6 +38,49 @@ class BuildingEngine:
 
         return material
 
+    def _record_bounds(self, start, end):
+        low = tuple(min(a, b) for a, b in zip(start, end))
+        high = tuple(max(a, b) for a, b in zip(start, end))
+
+        if self._bounds is None:
+            self._bounds = low + high
+            return
+
+        old_low = self._bounds[:3]
+        old_high = self._bounds[3:]
+
+        merged_low = tuple(
+            min(a, b) for a, b in zip(old_low, low)
+        )
+        merged_high = tuple(
+            max(a, b) for a, b in zip(old_high, high)
+        )
+
+        self._bounds = merged_low + merged_high
+
+    @property
+    def bounds(self):
+        """Limites absolutos: minX,minY,minZ,maxX,maxY,maxZ."""
+        return self._bounds
+
+    @property
+    def dimensions(self):
+        """Dimensões em blocos: largura, altura, profundidade."""
+        if self._bounds is None:
+            return None
+
+        x1, y1, z1, x2, y2, z2 = self._bounds
+        return (x2 - x1 + 1, y2 - y1 + 1, z2 - z1 + 1)
+
+    @property
+    def footprint(self):
+        """Retângulo X/Z que contém todos os comandos."""
+        if self._bounds is None:
+            return None
+
+        x1, _, z1, x2, _, z2 = self._bounds
+        return (x1, z1, x2, z2)
+
     def fill(self, a, b, c, d, e, f, material):
         start = self._position(a, b, c)
         end = self._position(d, e, f)
@@ -55,6 +99,7 @@ class BuildingEngine:
         coords = " ".join(map(str, start + end))
         command = f"fill {coords} {self._block(material)}"
 
+        self._record_bounds(start, end)
         self.commands.append(command)
         return command
 
@@ -66,6 +111,7 @@ class BuildingEngine:
             f"{self._block(material)}"
         )
 
+        self._record_bounds((px, py, pz), (px, py, pz))
         self.commands.append(command)
         return command
 

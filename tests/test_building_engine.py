@@ -56,3 +56,44 @@ class TestBuildingEngine(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestBuildingDimensions(unittest.TestCase):
+
+    def test_empty_building(self):
+        engine = BuildingEngine(100, 70, 200)
+
+        self.assertIsNone(engine.bounds)
+        self.assertIsNone(engine.dimensions)
+        self.assertIsNone(engine.footprint)
+
+    def test_fill_and_block_bounds(self):
+        engine = BuildingEngine(100, 70, 200)
+
+        engine.fill(-5, 0, -5, 5, 3, 5, "stone")
+        engine.block(0, 8, 0, "torch")
+
+        self.assertEqual(
+            engine.bounds,
+            (95, 70, 195, 105, 78, 205)
+        )
+
+        self.assertEqual(
+            engine.dimensions,
+            (11, 9, 11)
+        )
+
+        self.assertEqual(
+            engine.footprint,
+            (95, 195, 105, 205)
+        )
+
+    def test_reversed_fill_coordinates(self):
+        engine = BuildingEngine(0, 64, 0)
+
+        engine.fill(5, 3, 5, -5, 0, -5, "stone")
+
+        self.assertEqual(
+            engine.bounds,
+            (-5, 64, -5, 5, 67, 5)
+        )
