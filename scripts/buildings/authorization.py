@@ -1,6 +1,7 @@
-"""Política de autorização administrativa do Blocktopia.
+"""Política simples de autorização de construções do Blocktopia.
 
-Este módulo não executa comandos Minecraft.
+Este módulo decide se há autorização administrativa.
+Não executa comandos no Minecraft.
 """
 
 from enum import Enum
@@ -9,122 +10,78 @@ from enum import Enum
 class ExecutionMode(str, Enum):
     DRY_RUN = "DRY_RUN"
     STRICT = "STRICT"
-    MANUAL_OVERRIDE = "MANUAL_OVERRIDE"
-
-
-DATA_BLOCKERS = {
-    "ALTURAS_AUSENTES",
-    "MATERIAIS_ILEGIVEIS",
-    "DADOS_SUPERIORES_AUSENTES",
-    "VOLUME_INCOMPLETO",
-}
-
-KNOWN_CONFLICTS = {
-    "VOLUME_OCUPADO",
-    "OBSTACULOS_SUPERIORES",
-}
+    FORCE = "FORCE"
 
 
 def authorize_building(
     validation,
     mode=ExecutionMode.DRY_RUN,
     admin_confirmed=False,
-    reason=None,
 ):
-    """Avalia a autorização, sem executar a construção."""
+    """Avalia a autorização sem executar a construção."""
 
     if not isinstance(validation, dict):
         raise ValueError("Relatório de validação inválido")
 
     try:
         mode = ExecutionMode(mode)
-    except ValueError as exc:
+    except (ValueError, TypeError) as exc:
         raise ValueError("Modo de execução inválido") from exc
 
+    bounds = validation.get("bounds")
     blockers = validation.get("blockers")
+
+    if (
+        not isinstance(bounds, tuple)
+        or len(bounds) != 6
+        or any(type(value) is not int for value in bounds)
+    ):
+        raise ValueError("Limites da construção inválidos")
+
+    x1, y1, z1, x2, y2, z2 = bounds
+
+    if x1 > x2 or y1 > y2 or z1 > z2:
+        raise ValueError("Limites da construção invertidos")
 
     if (
         not isinstance(blockers, list)
         or any(not isinstance(b, str) for b in blockers)
     ):
-        raise ValueError("Bloqueios inválidos")
+        raise ValueError("Lista de bloqueios inválida")
 
-    blockers = set(blockers)
-
-    if not isinstance(admin_confirmed, bool):
+    if type(admin_confirmed) is not bool:
         raise ValueError("Confirmação administrativa inválida")
 
-    unknown_blockers = (
-        blockers
-        - DATA_BLOCKERS
-        - KNOWN_CONFLICTS
-        - {"CRITERIOS_DE_APROVACAO_PENDENTES"}
-    )
-
-    if unknown_blockers:
-        return {
-            "authorized": False,
-            "mode": mode.value,
-            "reason": "Bloqueios não reconhecidos",
-            "blockers": sorted(unknown_blockers),
-        }
+    result = {
+        "mode": mode.value,
+        "authorized": False,
+        "bounds": bounds,
+        "blockers": list(blockers),
+    }
 
     if mode == ExecutionMode.DRY_RUN:
-        return {
-            "authorized": False,
-            "mode": mode.value,
-            "reason": "Modo de simulação",
-            "blockers": sorted(blockers),
-        }
+        result["message"] = "Simulação: execução desabilitada"
+        return result
 
     if mode == ExecutionMode.STRICT:
-        return {
-            "authorized": bool(
-                validation.get("execution_allowed") is True
-                and validation.get("status") == "APROVADO"
-                and not blockers
-            ),
-            "mode": mode.value,
-            "reason": "Validação automática obrigatória",
-            "blockers": sorted(blockers),
-        }
+        result["authorized"] = (
+            validation.get("status") == "APROVADO"
+            and validation.get("execution_allowed") is True
+            and not blockers
+        )
+        result["message"] = (
+            "Validação aprovada"
+            if result["authorized"]
+            else "Construção não aprovada pelo validador"
+        )
+        return result
 
-    if DATA_BLOCKERS & blockers:
-        return {
-            "authorized": False,
-            "mode": mode.value,
-            "reason": "Dados de terreno incompletos",
-            "blockers": sorted(DATA_BLOCKERS & blockers),
-        }
-
+    # FORCE: o administrador aceita os riscos informados,
+    # inclusive obstáculos e regiões desconhecidas.
     if not admin_confirmed:
-        return {
-            "authorized": False,
-            "mode": mode.value,
-            "reason": "Confirmação administrativa necessária",
-            "blockers": sorted(blockers),
-        }
+        result["message"] = "Confirmação do administrador necessária"
+        return result
 
-    if not isinstance(reason, str) or not reason.strip():
-        return {
-            "authorized": False,
-            "mode": mode.value,
-            "reason": "Justificativa administrativa obrigatória",
-            "blockers": sorted(blockers),
-        }
-
-    if not validation.get("bounds"):
-        return {
-            "authorized": False,
-            "mode": mode.value,
-            "reason": "Limites da construção não informados",
-            "blockers": sorted(blockers),
-        }
-
-    return {
-        "authorized": True,
-        "mode": mode.value,
-        "reason": reason.strip(),
-        "blockers": sorted(blockers),
-        "authorization_type": "ADMINISTRATIVE_OVERRIDE",
-    }
+    result["authorized"] = True
+    result["message"] = "Construção autorizada pelo administrador"
+    return result

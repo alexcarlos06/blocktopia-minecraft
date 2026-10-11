@@ -13,85 +13,92 @@ class TestBuildingAuthorization(unittest.TestCase):
             "status": "PENDENTE",
             "execution_allowed": False,
             "bounds": (100, 70, 100, 110, 80, 110),
-            "blockers": blockers if blockers is not None else [
-                "VOLUME_OCUPADO",
-                "CRITERIOS_DE_APROVACAO_PENDENTES",
-            ],
+            "blockers": (
+                ["VOLUME_OCUPADO"]
+                if blockers is None else blockers
+            ),
         }
 
-    def authorize(self, validation):
-        return authorize_building(
-            validation,
-            mode=ExecutionMode.MANUAL_OVERRIDE,
-            admin_confirmed=True,
-            reason="Autorizo a construção com conflitos conhecidos",
-        )
+    def test_dry_run(self):
+        result = authorize_building(self.make_validation())
+        self.assertFalse(result["authorized"])
+        self.assertEqual(result["mode"], "DRY_RUN")
 
-    def test_dry_run_never_authorizes(self):
+    def test_strict_pending(self):
         result = authorize_building(
             self.make_validation(),
-            mode=ExecutionMode.DRY_RUN,
+            mode="STRICT",
         )
         self.assertFalse(result["authorized"])
 
-    def test_strict_blocks_pending(self):
-        result = authorize_building(
-            self.make_validation(),
-            mode=ExecutionMode.STRICT,
-        )
-        self.assertFalse(result["authorized"])
+    def test_strict_approved(self):
+        validation = self.make_validation([])
+        validation["status"] = "APROVADO"
+        validation["execution_allowed"] = True
 
-    def test_manual_override_known_conflict(self):
-        result = self.authorize(self.make_validation())
+        result = authorize_building(validation, mode="STRICT")
         self.assertTrue(result["authorized"])
-        self.assertEqual(
-            result["authorization_type"],
-            "ADMINISTRATIVE_OVERRIDE",
-        )
 
-    def test_manual_override_requires_confirmation(self):
+    def test_force_known_conflict(self):
         result = authorize_building(
             self.make_validation(),
-            mode=ExecutionMode.MANUAL_OVERRIDE,
-            admin_confirmed=False,
-            reason="Autorizo",
-        )
-        self.assertFalse(result["authorized"])
-
-    def test_manual_override_requires_reason(self):
-        result = authorize_building(
-            self.make_validation(),
-            mode=ExecutionMode.MANUAL_OVERRIDE,
+            mode="FORCE",
             admin_confirmed=True,
-            reason="  ",
         )
-        self.assertFalse(result["authorized"])
+        self.assertTrue(result["authorized"])
 
-    def test_missing_data_blocks_override(self):
-        for blocker in (
+    def test_force_unknown_terrain(self):
+        validation = self.make_validation([
             "ALTURAS_AUSENTES",
-            "MATERIAIS_ILEGIVEIS",
-            "DADOS_SUPERIORES_AUSENTES",
             "VOLUME_INCOMPLETO",
-        ):
-            with self.subTest(blocker=blocker):
-                result = self.authorize(
-                    self.make_validation([blocker])
-                )
-                self.assertFalse(result["authorized"])
+        ])
 
-    def test_unrecognized_blocker_denied(self):
-        result = self.authorize(
-            self.make_validation(["RISCO_NAO_CLASSIFICADO"])
+        result = authorize_building(
+            validation,
+            mode="FORCE",
+            admin_confirmed=True,
+        )
+
+        self.assertTrue(result["authorized"])
+        self.assertEqual(len(result["blockers"]), 2)
+
+    def test_force_without_confirmation(self):
+        result = authorize_building(
+            self.make_validation(),
+            mode="FORCE",
         )
         self.assertFalse(result["authorized"])
 
-    def test_missing_bounds_denied(self):
-        validation = self.make_validation()
-        validation["bounds"] = None
+    def test_force_unknown_blocker(self):
+        result = authorize_building(
+            self.make_validation(["RISCO_NAO_CLASSIFICADO"]),
+            mode="FORCE",
+            admin_confirmed=True,
+        )
+        self.assertTrue(result["authorized"])
 
-        result = self.authorize(validation)
-        self.assertFalse(result["authorized"])
+    def test_invalid_bounds(self):
+        validation = self.make_validation()
+        validation["bounds"] = (10, 70, 10, 5, 80, 20)
+
+        with self.assertRaises(ValueError):
+            authorize_building(
+                validation, mode="FORCE", admin_confirmed=True
+            )
+
+    def test_invalid_mode(self):
+        with self.assertRaises(ValueError):
+            authorize_building(
+                self.make_validation(), mode="INVALIDO"
+            )
+
+    def test_invalid_confirmation(self):
+        with self.assertRaises(ValueError):
+            authorize_building(
+                self.make_validation(),
+                mode="FORCE",
+                admin_confirmed="sim",
+            )
 
 
 if __name__ == "__main__":
