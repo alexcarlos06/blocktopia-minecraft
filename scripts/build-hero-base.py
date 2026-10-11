@@ -81,7 +81,7 @@ block(4, 1, 3, "chest")
 block(-5, 1, 9, "glowstone")
 block(5, 1, 9, "glowstone")
 
-output = Path("scripts/hero-base.commands.txt")
+output = Path(__file__).resolve().parent / "buildings/generated/hero-base.commands.txt"
 output.parent.mkdir(parents=True, exist_ok=True)
 output.write_text(
     "\n".join(commands) + "\n",

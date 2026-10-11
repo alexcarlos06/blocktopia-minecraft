@@ -33,3 +33,7 @@ permissions.json
 __pycache__/
 .DS_Store
 Thumbs.db
+
+# Arquivos gerados pelas construções
+/scripts/buildings/generated/
+/scripts/scripts/*.commands.txt
