@@ -16,6 +16,12 @@ case "$1" in
     tickingarea-list)
         COMMAND="tickingarea list all-dimensions"
         ;;
+    tickingarea-test-add)
+        COMMAND="tickingarea add circle 350 65 -180 1 blocktopia_test false"
+        ;;
+    tickingarea-test-remove)
+        COMMAND="tickingarea remove blocktopia_test"
+        ;;
     *)
         echo "Comando não autorizado: $1" >&2
         exit 1
