@@ -103,6 +103,35 @@ class TerrainReader:
         self.cache[cache_key] = result
         return result
 
+    def get_height(self, x: int, z: int):
+        """Retorna a superfície estimada via Data3D ou None.
+
+        A conversão foi validada em amostras do Blocktopia.
+        Não deve ser usada isoladamente para aprovar construções.
+        """
+        if type(x) is not int or type(z) is not int:
+            raise ValueError("Coordenadas devem ser inteiras")
+
+        cx, cz = x // 16, z // 16
+        lx, lz = x % 16, z % 16
+
+        key = struct.pack("<iiB", cx, cz, 0x2B)
+
+        try:
+            data = self.db.get(key)
+        except KeyError:
+            return None
+
+        if len(data) < 512:
+            raise ValueError("Registro Data3D incompleto")
+
+        index = lz * 16 + lx
+        raw_height = struct.unpack_from(
+            "<H", data, index * 2
+        )[0]
+
+        return raw_height - 65
+
     def get_block(self, x, y, z):
         """Retorna o material ou None se o subchunk estiver ausente."""
 

@@ -39,3 +39,55 @@ class TestTerrainReader(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestTerrainHeight(unittest.TestCase):
+
+    def test_get_height(self):
+        import struct
+        from unittest.mock import Mock
+
+        reader = TerrainReader.__new__(TerrainReader)
+        reader.db = Mock()
+
+        data = bytearray(512)
+
+        # Coordenadas X=350, Z=-180:
+        # Chunk (21, -12), posição local (14, 12).
+        index = 12 * 16 + 14
+        struct.pack_into("<H", data, index * 2, 214)
+
+        reader.db.get.return_value = bytes(data)
+
+        self.assertEqual(reader.get_height(350, -180), 149)
+
+        expected_key = struct.pack("<iiB", 21, -12, 0x2B)
+        reader.db.get.assert_called_once_with(expected_key)
+
+    def test_missing_heightmap(self):
+        from unittest.mock import Mock
+
+        reader = TerrainReader.__new__(TerrainReader)
+        reader.db = Mock()
+        reader.db.get.side_effect = KeyError("missing")
+
+        self.assertIsNone(reader.get_height(350, -180))
+
+    def test_incomplete_heightmap(self):
+        from unittest.mock import Mock
+
+        reader = TerrainReader.__new__(TerrainReader)
+        reader.db = Mock()
+        reader.db.get.return_value = bytes(100)
+
+        with self.assertRaises(ValueError):
+            reader.get_height(350, -180)
+
+    def test_invalid_height_coordinates(self):
+        from unittest.mock import Mock
+
+        reader = TerrainReader.__new__(TerrainReader)
+        reader.db = Mock()
+
+        with self.assertRaises(ValueError):
+            reader.get_height(350.5, -180)
