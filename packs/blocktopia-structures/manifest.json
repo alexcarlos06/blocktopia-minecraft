@@ -1,0 +1,29 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Blocktopia Structures",
+    "description": "Biblioteca de estruturas do Blocktopia",
+    "uuid": "0b827b5b-10d6-4ee0-b139-32d38f1a8ae5",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      0
+    ]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "980bb0d3-4c45-42e3-aa3a-b6ecd81a5b12",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}
