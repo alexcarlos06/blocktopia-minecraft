@@ -22,6 +22,18 @@ case "$1" in
     tickingarea-test-remove)
         COMMAND="tickingarea remove blocktopia_test"
         ;;
+    tickingarea-east-add)
+        COMMAND="tickingarea add circle 366 150 -180 1 blocktopia_east false"
+        ;;
+    tickingarea-east-remove)
+        COMMAND="tickingarea remove blocktopia_east"
+        ;;
+    tickingarea-se-add)
+        COMMAND="tickingarea add circle 360 150 -168 0 blocktopia_se true"
+        ;;
+    tickingarea-se-remove)
+        COMMAND="tickingarea remove blocktopia_se"
+        ;;
     *)
         echo "Comando não autorizado: $1" >&2
         exit 1
