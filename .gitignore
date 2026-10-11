@@ -1,23 +1,35 @@
-# Configuracoes locais e segredos
-.env
-.env.*
-!.env.exemple
-
-# Dados persistentes
-minecraft-data
-cat > .gitignore << 'EOF'
-# Configuracoes locais e segredos
+# Configurações locais e segredos
 .env
 .env.*
 !.env.example
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
 
-# Dados persistentes
+# Dados de execução e backups (mundos/ é uma cópia revisada, não o volume ativo)
 minecraft-data/
-
 data/
 backups/
+minecraft-backups/
+*.mcworld
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
 
-# Arquivos temporarios
+# Identificadores e permissões locais
+allowlist.json
+permissions.json
+
+# Arquivos temporários
 *.log
 *.bak
 *.tmp
+__pycache__/
+.DS_Store
+Thumbs.db
