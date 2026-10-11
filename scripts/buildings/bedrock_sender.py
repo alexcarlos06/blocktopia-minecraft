@@ -43,6 +43,64 @@ fi
 printf "%s\n" "$1" > "/proc/$PID/fd/0"
 '''
 
+    def send_fill(self, command, *, admin_confirmed=False):
+        """Envia um único fill autorizado.
+
+        O backup obrigatório deve ser realizado e validado
+        pelo ConstructionRunner antes desta chamada.
+        """
+        if admin_confirmed is not True:
+            raise PermissionError(
+                "Confirmação administrativa obrigatória"
+            )
+
+        validated = BuildingExecutor.validate_command(command)
+
+        if validated["type"] != "fill":
+            raise ValueError(
+                "Este método aceita somente fill"
+            )
+
+        try:
+            subprocess.run(
+                [
+                    "docker",
+                    "exec",
+                    "--user",
+                    self.USER,
+                    self.CONTAINER,
+                    "sh",
+                    "-c",
+                    self.SEND_SCRIPT,
+                    "sh",
+                    validated["command"],
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=10,
+            )
+        except subprocess.TimeoutExpired as exc:
+            raise RuntimeError(
+                "Tempo limite no envio; resultado no Bedrock é desconhecido"
+            ) from exc
+        except subprocess.CalledProcessError as exc:
+            raise RuntimeError(
+                "Falha no envio ao console Bedrock: "
+                + (exc.stderr or "").strip()
+            ) from exc
+
+        return {
+            "status": "ENVIADO",
+            "confirmed_in_world": False,
+            "container": self.CONTAINER,
+            "command": validated["command"],
+            "volume": validated["volume"],
+            "message": (
+                "Comando enviado; execução ainda não verificada"
+            ),
+        }
+
     def send_setblock(self, command, *, admin_confirmed=False):
         """Envia somente setblock, após confirmação explícita.
 
