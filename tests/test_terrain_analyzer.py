@@ -154,3 +154,149 @@ class TestTerrainAnalyzerMaterials(unittest.TestCase):
         )
         self.assertEqual(report["material_categories"], {})
         self.assertEqual(report["status"], "PENDENTE")
+
+
+class TestTerrainAnalyzerVertical(unittest.TestCase):
+
+    def make_reader(self, upper_blocks):
+        reader = Mock()
+        reader.get_height.return_value = 70
+
+        def get_block(x, y, z):
+            if y == 70:
+                return "minecraft:grass_block"
+            return upper_blocks.get(y)
+
+        reader.get_block.side_effect = get_block
+        return reader
+
+    def test_vegetation_above_ground(self):
+        reader = self.make_reader({
+            71: "minecraft:cornflower",
+            72: "minecraft:air",
+            73: "minecraft:air",
+            74: "minecraft:air",
+        })
+
+        report = TerrainAnalyzer(reader).analyze((0, 0, 0, 0))
+
+        self.assertEqual(report["overhead_obstacles"], 1)
+        self.assertEqual(report["unknown_overhead_positions"], 0)
+        self.assertEqual(
+            report["overhead_categories"]["VEGETACAO"], 1
+        )
+        self.assertEqual(report["status"], "PENDENTE")
+
+    def test_water_above_ground(self):
+        reader = self.make_reader({
+            71: "minecraft:water",
+            72: "minecraft:air",
+            73: "minecraft:air",
+            74: "minecraft:air",
+        })
+
+        report = TerrainAnalyzer(reader).analyze((0, 0, 0, 0))
+
+        self.assertEqual(report["overhead_obstacles"], 1)
+        self.assertEqual(
+            report["overhead_categories"]["LIQUIDO"], 1
+        )
+        self.assertEqual(report["status"], "PENDENTE")
+
+    def test_missing_upper_subchunk(self):
+        reader = self.make_reader({
+            71: "minecraft:air",
+            72: None,
+            73: None,
+            74: None,
+        })
+
+        report = TerrainAnalyzer(reader).analyze((0, 0, 0, 0))
+
+        self.assertEqual(report["unknown_overhead_positions"], 3)
+        self.assertEqual(report["overhead_obstacles"], 0)
+        self.assertEqual(report["status"], "PENDENTE")
+
+    def test_clear_column(self):
+        reader = self.make_reader({
+            71: "minecraft:air",
+            72: "minecraft:air",
+            73: "minecraft:air",
+            74: "minecraft:air",
+        })
+
+        report = TerrainAnalyzer(reader).analyze((0, 0, 0, 0))
+
+        self.assertEqual(report["overhead_obstacles"], 0)
+        self.assertEqual(report["unknown_overhead_positions"], 0)
+        self.assertEqual(report["overhead_categories"]["AR"], 4)
+        self.assertEqual(reader.get_block.call_count, 5)
+
+        # Mesmo com a coluna livre, aprovação continua bloqueada.
+        self.assertEqual(report["status"], "PENDENTE")
+
+    def test_reader_error_blocks_analysis(self):
+        reader = Mock()
+        reader.get_height.return_value = 70
+
+        def get_block(x, y, z):
+            if y == 70:
+                return "minecraft:grass_block"
+            raise ValueError("Subchunk não suportado")
+
+        reader.get_block.side_effect = get_block
+
+        with self.assertRaises(ValueError):
+            TerrainAnalyzer(reader).analyze((0, 0, 0, 0))
+
+
+class TestTerrainAnalyzerInspectionHeight(unittest.TestCase):
+
+    def test_custom_inspection_height(self):
+        reader = Mock()
+        reader.get_height.return_value = 70
+        reader.get_block.side_effect = (
+            lambda x, y, z:
+            "minecraft:grass_block" if y == 70
+            else "minecraft:air"
+        )
+
+        report = TerrainAnalyzer(
+            reader,
+            inspection_height=10
+        ).analyze((0, 0, 0, 0))
+
+        self.assertEqual(report["overhead_categories"]["AR"], 10)
+        self.assertEqual(report["overhead_obstacles"], 0)
+        self.assertEqual(report["unknown_overhead_positions"], 0)
+        self.assertEqual(reader.get_block.call_count, 11)
+        self.assertEqual(report["status"], "PENDENTE")
+
+    def test_default_inspection_height(self):
+        reader = Mock()
+        reader.get_height.return_value = 70
+        reader.get_block.side_effect = (
+            lambda x, y, z:
+            "minecraft:grass_block" if y == 70
+            else "minecraft:air"
+        )
+
+        report = TerrainAnalyzer(reader).analyze((0, 0, 0, 0))
+
+        self.assertEqual(report["overhead_categories"]["AR"], 4)
+        self.assertEqual(reader.get_block.call_count, 5)
+
+    def test_invalid_inspection_height(self):
+        reader = Mock()
+
+        invalid_values = (0, -1, 65, 2.5, True, None)
+
+        for value in invalid_values:
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):
+                    TerrainAnalyzer(
+                        reader,
+                        inspection_height=value
+                    )
+
+        reader.get_height.assert_not_called()
