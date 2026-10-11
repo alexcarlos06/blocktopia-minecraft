@@ -9,6 +9,7 @@ class TestTerrainAnalyzer(unittest.TestCase):
 
     def test_complete_area(self):
         reader = Mock()
+        reader.get_block.return_value = "minecraft:grass_block"
         reader.get_height.return_value = 70
 
         report = TerrainAnalyzer(reader).analyze((0, 0, 2, 2))
@@ -24,6 +25,7 @@ class TestTerrainAnalyzer(unittest.TestCase):
 
     def test_missing_height(self):
         reader = Mock()
+        reader.get_block.return_value = "minecraft:grass_block"
         reader.get_height.side_effect = (
             lambda x, z: None if (x, z) == (1, 1) else 70
         )
@@ -43,6 +45,7 @@ class TestTerrainAnalyzer(unittest.TestCase):
         engine.fill(-1, 0, -1, 1, 3, 1, "stone")
 
         reader = Mock()
+        reader.get_block.return_value = "minecraft:grass_block"
         reader.get_height.return_value = 70
 
         report = TerrainAnalyzer(reader).analyze(engine.footprint)
@@ -56,6 +59,7 @@ class TestTerrainAnalyzer(unittest.TestCase):
 
     def test_invalid_footprint(self):
         reader = Mock()
+        reader.get_block.return_value = "minecraft:grass_block"
         analyzer = TerrainAnalyzer(reader)
 
         invalid = [
@@ -75,6 +79,7 @@ class TestTerrainAnalyzer(unittest.TestCase):
 
     def test_area_limit(self):
         reader = Mock()
+        reader.get_block.return_value = "minecraft:grass_block"
 
         with self.assertRaises(ValueError):
             TerrainAnalyzer(reader).analyze((0, 0, 100, 100))
@@ -83,6 +88,7 @@ class TestTerrainAnalyzer(unittest.TestCase):
 
     def test_reader_error_propagates(self):
         reader = Mock()
+        reader.get_block.return_value = "minecraft:grass_block"
         reader.get_height.side_effect = ValueError(
             "Data3D incompleto"
         )
@@ -92,6 +98,7 @@ class TestTerrainAnalyzer(unittest.TestCase):
 
     def test_invalid_height(self):
         reader = Mock()
+        reader.get_block.return_value = "minecraft:grass_block"
         reader.get_height.return_value = "70"
 
         with self.assertRaises(ValueError):
@@ -100,3 +107,50 @@ class TestTerrainAnalyzer(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestTerrainAnalyzerMaterials(unittest.TestCase):
+
+    def test_material_classification(self):
+        reader = Mock()
+        reader.get_height.return_value = 70
+
+        blocks = {
+            (0, 0): "minecraft:grass_block",
+            (1, 0): "minecraft:water",
+            (0, 1): "minecraft:snow_layer",
+            (1, 1): "minecraft:unknown_block",
+        }
+
+        reader.get_block.side_effect = (
+            lambda x, y, z: blocks[(x, z)]
+        )
+
+        report = TerrainAnalyzer(reader).analyze((0, 0, 1, 1))
+
+        self.assertEqual(
+            report["material_categories"],
+            {
+                "SOLO": 1,
+                "LIQUIDO": 1,
+                "NEVE_SUPERFICIAL": 1,
+                "DESCONHECIDO": 1,
+            },
+        )
+        self.assertEqual(
+            report["unreadable_material_positions"], 0
+        )
+        self.assertEqual(report["status"], "PENDENTE")
+
+    def test_missing_material_data(self):
+        reader = Mock()
+        reader.get_height.return_value = 70
+        reader.get_block.return_value = None
+
+        report = TerrainAnalyzer(reader).analyze((0, 0, 0, 0))
+
+        self.assertEqual(
+            report["unreadable_material_positions"], 1
+        )
+        self.assertEqual(report["material_categories"], {})
+        self.assertEqual(report["status"], "PENDENTE")

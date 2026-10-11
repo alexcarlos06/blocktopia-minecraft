@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Analisador preliminar de terreno do Blocktopia."""
 
+from collections import Counter
+
+from scripts.terrain.materials import classify_material
+
 
 class TerrainAnalyzer:
     MAX_POSITIONS = 10000
@@ -34,6 +38,8 @@ class TerrainAnalyzer:
 
         heights = []
         missing = []
+        materials = Counter()
+        unreadable_materials = []
 
         for z in range(z1, z2 + 1):
             for x in range(x1, x2 + 1):
@@ -50,6 +56,16 @@ class TerrainAnalyzer:
                         )
                     heights.append(height)
 
+                    # Inspeciona apenas o bloco na altura estimada.
+                    # Erros de leitura bloqueiam a análise.
+                    block = self.reader.get_block(x, height, z)
+
+                    if block is None:
+                        unreadable_materials.append((x, height, z))
+                    else:
+                        category = classify_material(block)
+                        materials[category.value] += 1
+
         minimum = min(heights) if heights else None
         maximum = max(heights) if heights else None
 
@@ -62,6 +78,11 @@ class TerrainAnalyzer:
             "available_positions": len(heights),
             "missing_positions": len(missing),
             "missing_coordinates": missing,
+            "material_categories": dict(materials),
+            "unreadable_material_positions": len(
+                unreadable_materials
+            ),
+            "unreadable_material_coordinates": unreadable_materials,
             "min_height": minimum,
             "max_height": maximum,
             "height_difference": (
