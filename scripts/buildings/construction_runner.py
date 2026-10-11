@@ -11,6 +11,7 @@ from pathlib import Path
 
 from scripts.buildings.executor import BuildingExecutor
 from scripts.buildings.bedrock_sender import BedrockCommandSender
+from scripts.buildings.bedrock_verifier import BedrockVerifier
 
 
 class ConstructionRunner:
@@ -125,10 +126,38 @@ class ConstructionRunner:
             admin_confirmed=True,
         )
 
+        # Consultar o bloco após o envio.
+        # Falha na verificação não deve reenviar a construção.
+        try:
+            verification = BedrockVerifier().verify_setblock(
+                validated["command"]
+            )
+            verification_status = verification.get(
+                "status", "INDETERMINADO"
+            )
+            if verification_status not in (
+                "CONFIRMADO", "DIVERGENTE", "INDETERMINADO"
+            ):
+                verification_status = "INDETERMINADO"
+
+            verification_message = verification.get(
+                "message", "Sem detalhes da verificação"
+            )
+        except Exception as exc:
+            verification_status = "INDETERMINADO"
+            verification_message = (
+                "Verificação falhou: "
+                + type(exc).__name__
+            )
+
         return {
             "status": result["status"],
             "command": validated["command"],
             "backup": str(backup),
             "sent": True,
-            "confirmed_in_world": False,
+            "verification_status": verification_status,
+            "verification_message": verification_message,
+            "confirmed_in_world": (
+                verification_status == "CONFIRMADO"
+            ),
         }

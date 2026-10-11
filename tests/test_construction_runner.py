@@ -102,7 +102,13 @@ class TestConstructionRunner(unittest.TestCase):
 
             with patch.object(
                 self.runner, "BACKUP_DIR", root
-            ):
+            ), patch(
+                "scripts.buildings.construction_runner.BedrockVerifier"
+            ) as verifier:
+                verifier.return_value.verify_setblock.return_value = {
+                    "status": "INDETERMINADO",
+                    "message": "Resposta não confirmada",
+                }
                 result = self.runner.execute(
                     self.command,
                     mode="FORCE",
