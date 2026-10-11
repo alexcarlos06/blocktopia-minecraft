@@ -37,3 +37,6 @@ Thumbs.db
 # Arquivos gerados pelas construções
 /scripts/buildings/generated/
 /scripts/scripts/*.commands.txt
+
+.venv/
+scripts/terrain/output/
