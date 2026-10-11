@@ -6,40 +6,53 @@ services:
 
     restart: unless-stopped
 
+    # Rede - Minecraft Bedrock NetherNet
     ports:
-      - "${MINECRAFT_PORT:-19132}:19132/udp"
+      - "19132:19132/tcp"
+      - "19140-19155:19140-19155/udp"
 
     environment:
+      # Licenca
       EULA: "TRUE"
 
+      # Rede NetherNet
+      TRANSPORT: "nethernet"
+      SERVER_UDP_PORTS: "${SERVER_UDP_PORTS:?Configure SERVER_UDP_PORTS no .env}"
+
+      # Identificacao
       SERVER_NAME: "${SERVER_NAME:-Blocktopia}"
       LEVEL_NAME: "${LEVEL_NAME:-Blocktopia}"
+      LEVEL_SEED: "${LEVEL_SEED:-}"
 
-      GAMEMODE: "${GAMEMODE:-crative}"
+      # Jogabilidade Survival
+      GAMEMODE: "${GAMEMODE:-survival}"
       FORCE_GAMEMODE: "true"
-      DIFFICULTY: "${DIFFICULTY:-peaceful}"
+      DIFFICULTY: "${DIFFICULTY:-easy}"
       ALLOW_CHEATS: "${ALLOW_CHEATS:-false}"
 
+      # Jogadores
       MAX_PLAYERS: "${MAX_PLAYERS:-10}"
       ONLINE_MODE: "true"
 
-      # Controle de acesso
+      # Seguranca
       ALLOW_LIST: "true"
-      ALLOW_LIST_USERS: "${ALLOW_LIST_USERS:-}"
+      ALLOW_LIST_USERS: "${ALLOW_LIST_USERS:?Configure os jogadores autorizados}"
 
-      # Permissoes de jogadores
+      # Permissoes
       OPS: "${OPS:-}"
       MEMBERS: "${MEMBERS:-}"
       VISITORS: "${VISITORS:-}"
-
       DEFAULT_PLAYER_PERMISSION_LEVEL: "member"
 
-      VIEW_DISTANCE: "10"
-      TICK_DISTANCE: "4"
+      # Desempenho
+      VIEW_DISTANCE: "${VIEW_DISTANCE:-16}"
+      TICK_DISTANCE: "${TICK_DISTANCE:-4}"
 
+    # Persistencia do mundo
     volumes:
       - "${MINECRAFT_DATA_DIR:?Defina MINECRAFT_DATA_DIR}:/data"
 
+    # Limites da VPS
     mem_limit: 4g
     cpus: 2.0
 

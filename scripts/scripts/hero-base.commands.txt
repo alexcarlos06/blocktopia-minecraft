@@ -1,0 +1,33 @@
+fill 343 64 -187 357 64 -173 minecraft:stone_bricks
+fill 344 65 -186 356 65 -174 minecraft:spruce_planks
+fill 344 66 -186 356 73 -174 minecraft:air
+fill 343 66 -187 357 70 -187 minecraft:stone_bricks
+fill 343 66 -173 357 70 -173 minecraft:stone_bricks
+fill 343 66 -186 343 70 -174 minecraft:stone_bricks
+fill 357 66 -186 357 70 -174 minecraft:stone_bricks
+fill 343 66 -187 343 72 -187 minecraft:spruce_log
+fill 343 66 -173 343 72 -173 minecraft:spruce_log
+fill 357 66 -187 357 72 -187 minecraft:spruce_log
+fill 357 66 -173 357 72 -173 minecraft:spruce_log
+fill 342 71 -188 358 71 -172 minecraft:spruce_planks
+fill 344 72 -186 356 72 -174 minecraft:spruce_planks
+fill 346 73 -184 354 73 -176 minecraft:spruce_planks
+fill 348 74 -182 352 74 -178 minecraft:spruce_planks
+fill 349 66 -173 351 68 -173 minecraft:air
+fill 349 65 -172 351 65 -169 minecraft:cobblestone
+fill 346 68 -187 348 69 -187 minecraft:glass
+fill 352 68 -187 354 69 -187 minecraft:glass
+fill 343 68 -183 343 69 -181 minecraft:glass
+fill 357 68 -179 357 69 -177 minecraft:glass
+setblock 345 66 -185 minecraft:sea_lantern
+setblock 345 66 -175 minecraft:sea_lantern
+setblock 355 66 -185 minecraft:sea_lantern
+setblock 355 66 -175 minecraft:sea_lantern
+setblock 346 66 -184 minecraft:crafting_table
+setblock 347 66 -184 minecraft:furnace
+setblock 348 66 -184 minecraft:smoker
+setblock 353 66 -184 minecraft:anvil
+setblock 346 66 -177 minecraft:chest
+setblock 354 66 -177 minecraft:chest
+setblock 345 66 -171 minecraft:glowstone
+setblock 355 66 -171 minecraft:glowstone
