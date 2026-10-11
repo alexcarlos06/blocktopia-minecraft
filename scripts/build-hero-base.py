@@ -11,20 +11,14 @@ parser.add_argument("--y", type=int, required=True)
 parser.add_argument("--z", type=int, required=True)
 args = parser.parse_args()
 
+from buildings.engine import BuildingEngine
+
 X, Y, Z = args.x, args.y, args.z
-commands = []
 
-def fill(a, b, c, d, e, f, material):
-    commands.append(
-        f"fill {X+a} {Y+b} {Z+c} "
-        f"{X+d} {Y+e} {Z+f} minecraft:{material}"
-    )
+engine = BuildingEngine(X, Y, Z)
 
-def block(x, y, z, material):
-    commands.append(
-        f"setblock {X+x} {Y+y} {Z+z} "
-        f"minecraft:{material}"
-    )
+fill = engine.fill
+block = engine.block
 
 # 1. Fundacao e piso
 fill(-7, -1, -7, 7, -1, 7, "stone_bricks")
@@ -81,12 +75,12 @@ block(4, 1, 3, "chest")
 block(-5, 1, 9, "glowstone")
 block(5, 1, 9, "glowstone")
 
-output = Path(__file__).resolve().parent / "buildings/generated/hero-base.commands.txt"
-output.parent.mkdir(parents=True, exist_ok=True)
-output.write_text(
-    "\n".join(commands) + "\n",
-    encoding="utf-8"
+output = engine.export(
+    Path(__file__).resolve().parent
+    / "buildings/generated/hero-base.commands.txt"
 )
+
+commands = engine.commands
 
 print("Fortaleza dos Herois")
 print(f"Centro: {X}, {Y}, {Z}")
