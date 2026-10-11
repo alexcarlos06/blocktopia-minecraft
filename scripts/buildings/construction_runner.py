@@ -32,9 +32,13 @@ class ConstructionRunner:
         # Validar antes de qualquer operação externa.
         validated = BuildingExecutor.validate_command(command)
 
-        if validated["type"] != "setblock":
+        if (
+            validated["type"] == "fill"
+            and validated["volume"]
+            > BedrockVerifier.MAX_FILL_VERIFICATION_BLOCKS
+        ):
             raise ValueError(
-                "Esta versão aceita somente setblock"
+                "Construção fill limitada a 64 blocos nesta versão"
             )
 
         if mode not in ("DRY_RUN", "FORCE"):
@@ -121,17 +125,32 @@ class ConstructionRunner:
 
         # O transporte confirma o envio, não a colocação
         # efetiva do bloco no mundo.
-        result = BedrockCommandSender().send_setblock(
-            validated["command"],
-            admin_confirmed=True,
-        )
+        sender = BedrockCommandSender()
+
+        if validated["type"] == "fill":
+            result = sender.send_fill(
+                validated["command"],
+                admin_confirmed=True,
+            )
+        else:
+            result = sender.send_setblock(
+                validated["command"],
+                admin_confirmed=True,
+            )
 
         # Consultar o bloco após o envio.
         # Falha na verificação não deve reenviar a construção.
         try:
-            verification = BedrockVerifier().verify_setblock(
-                validated["command"]
-            )
+            verifier = BedrockVerifier()
+
+            if validated["type"] == "fill":
+                verification = verifier.verify_fill(
+                    validated["command"]
+                )
+            else:
+                verification = verifier.verify_setblock(
+                    validated["command"]
+                )
             verification_status = verification.get(
                 "status", "INDETERMINADO"
             )
