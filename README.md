@@ -1,87 +1,98 @@
 # Blocktopia — Minecraft Bedrock
 
-Servidor privado para aventuras cooperativas, exploração e construções em família, com foco em Henry e Nicolas. Este repositório organiza a infraestrutura e os scripts; o mundo ativo permanece na VPS.
+Servidor privado para aventuras cooperativas, exploração e construções em família, com foco em Henry e Nicolas. Este repositório organiza infraestrutura, automações e estruturas; o mundo ativo permanece privado na VPS.
 
-## Estrutura
+## Estado do projeto
 
-- `compose.yaml`: serviço Minecraft.
-- `.env.example`: modelo de configuração; copiar para `.env` e preencher localmente.
-- `scripts/build-hero-base.py`: gerador de comandos da Fortaleza dos Heróis.
-- `scripts/scripts/hero-base.commands.txt`: arquivo de comandos já existente no repositório.
-- `mundos/`: pasta preparada para uma cópia consistente, revisada e autorizada do mundo. Veja [o procedimento](mundos/README.md).
+Leia [docs/STATUS.md](docs/STATUS.md) para o checklist de última feature, feature atual e próximas prioridades, com distinção entre código versionado, execução confirmada por relato, histórico e propostas.
 
-## Configuração versionada e estado real
+A última feature confirmada pelo administrador é a importação da casa .mcstructure por Behavior Pack, com “Loaded a structure” em **137 120 176**. A **inspeção visual, validação pós-implantação e registro da construção continuam pendentes**. O catálogo de locais da base auditada está vazio.
 
-O Compose declara o serviço `minecraft`, container `blocktopia`, imagem `itzg/minecraft-bedrock-server:latest`, volume `MINECRAFT_DATA_DIR:/data`, limite de memória de 4 GB e 2 CPUs, reinício `unless-stopped` e console interativo.
+A documentação foi conferida contra a main em `3e52f72a8cc99a570945ba8ca1a69a1602790b75`. Publicação de código/documentação não comprova implantação. Não houve acesso à VPS nesta atualização.
 
-Configura NetherNet, TCP 19132 e UDP 19140–19155. Não assumir UDP 19132 como diagnóstico dessa configuração. Survival, dificuldade Easy, até 10 jogadores, visão 16 e simulação 4 são os padrões do Compose. Autenticação online e allowlist estão fixadas em true; a permissão padrão é member e OPS fica vazio por padrão.
+## Documentação
 
-Esses arquivos descrevem a configuração versionada, não comprovam a versão ou o estado implantado na VPS. A tag latest não fixa a versão do Bedrock. Confirme nos logs antes de usar comandos ou add-ons dependentes de versão.
+- [Status e checklist](docs/STATUS.md): evidências, pendências e prioridades.
+- [Implementação e operação](docs/IMPLEMENTACAO.md): Docker, backups, terreno, construção, testes, packs, implantação e reversão.
+- [Orientações históricas sobre cópias de mundos](mundos/README.md): consistência e privacidade. Manter saves e backups privados; esta entrega não inclui dados do mundo.
 
-### Atenção ao .env.example
+## Estrutura atual
 
-- Substituir `<IP_Publico>` em SERVER_UDP_PORTS e confirmar o caminho MINECRAFT_DATA_DIR; o caminho do exemplo é ilustrativo.
-- Preencher ALLOW_LIST_USERS e MEMBERS com os identificadores aceitos pela imagem, verificados para a versão em uso; `UUID` é um placeholder, não um cadastro válido.
-- O exemplo define ALLOW_CHEATS=true para configuração temporária; para a experiência normal, revisar e preferir false.
-- MINECRAFT_PORT não é usado pelo Compose atual: as portas estão fixas em compose.yaml.
-- ONLINE_MODE e ALLOW_LIST do exemplo não controlam o Compose atual, que fixa ambas em true.
-- Não conceder OPS às crianças por padrão.
-- LEVEL_SEED serve à geração de mundo; não é procedimento de reset de um mundo existente.
+```text
+compose.yaml
+.env.example
+.gitignore
+config/adventure-locations.json
+docs/
+  STATUS.md
+  IMPLEMENTACAO.md
+scripts/
+  admin/bedrock-command.sh
+  backup/backup-world.py
+  backup/probe-save-cycle.sh
+  build-hero-base.py
+  buildings/                  # planejamento, execução restrita e verificação
+  terrain/                    # leitura experimental e análise de cópia do mundo
+tests/                        # unittest
+packs/blocktopia-structures/
+  LICENSE
+  manifest.json
+  structures/blocktopia/
+    casa_inicial.mcstructure
+    house1.mcstructure
+mundos/                       # documentação e .gitkeep; sem save
+```
 
-## Preparação e implantação
+O gerador produz comandos durante a execução; nenhum arquivo `scripts/scripts/hero-base.commands.txt` está presente na base auditada.
 
-Requer Git, Docker e Docker Compose no host. Aceitar a EULA implica concordância com os termos do Minecraft.
+## Infraestrutura e configuração
 
-Em um novo checkout:
+Compose: serviço `minecraft`, container `blocktopia`, imagem `itzg/minecraft-bedrock-server:latest`, volume `MINECRAFT_DATA_DIR:/data`, 4 GB e 2 CPUs, reinício `unless-stopped`, stdin/TTY. NetherNet: TCP 19132 e UDP 19140–19155; não assumir UDP 19132 como diagnóstico.
+
+Padrões versionados: Survival, Easy, 10 jogadores, visão 16, simulação 4 e cheats=false. Autenticação online/allowlist são fixadas em true, permissão padrão member e OPS vazio por padrão. O exemplo de ambiente habilita cheats temporariamente; revisar para operação normal. Não conceder OP às crianças por padrão.
+
+A tag latest não fixa a versão Bedrock. 1.26.52 é referência histórica: confirmar a versão instalada antes de comandos/add-ons. Variáveis e caminhos privados não foram lidos.
+
+No `.env.example`, preencher SERVER_UDP_PORTS, MINECRAFT_DATA_DIR e jogadores localmente. UUID é placeholder. MINECRAFT_PORT não é usado pelo Compose atual; ONLINE_MODE e ALLOW_LIST do exemplo não controlam os valores fixos. LEVEL_SEED não é mecanismo de reset.
+
+## Preparação
+
+Requer Git, Docker e Docker Compose. Revisar e aceitar os termos da EULA antes de operar.
 
 ```bash
 git clone https://github.com/alexcarlos06/blocktopia-minecraft.git
 cd blocktopia-minecraft
 cp .env.example .env
-# Editar .env localmente antes de continuar
+# Editar .env localmente antes de continuar.
 docker compose config --quiet
 ```
 
-O .env nunca deve ser publicado. Evite compartilhar a saída completa de docker compose config, pois pode revelar valores interpolados.
+Não publicar .env nem saída interpolada completa de compose config. Na VPS existente, conferir checkout, volume e backup antes de atualização. A [documentação operacional](docs/IMPLEMENTACAO.md) descreve implantação/reversão; atualizar somente documentação não exige reinício.
 
-Na VPS existente, conferir o checkout e o volume antes de executar qualquer implantação. Caminhos de referência do projeto:
+## Console, construções e testes
 
-- Projeto: /home/alexcsousa/projects/minecraft-bedrock-server
-- Dados: /home/alexcsousa/projects/minecraft-data
-- Backups: /home/alexcsousa/projects/minecraft-backups
-
-Após configuração revisada e backup consistente, a implantação manual afeta somente o serviço Minecraft:
-
-```bash
-docker compose up -d minecraft
-docker compose ps minecraft
-docker compose logs --tail=100 minecraft
-```
-
-O comando up pode criar ou recriar o container e causar indisponibilidade. Não executar pull/atualizações sem backup e revisão de compatibilidade. Não usar comandos globais de limpeza ou parar outros serviços da VPS. Nenhum desses comandos foi executado como parte da documentação.
-
-## Console e construções
-
-O histórico registra problemas de permissão com send-command; a alternativa utilizada foi:
+O histórico registra problemas de permissão com send-command. Alternativa utilizada:
 
 ```bash
 docker attach blocktopia
 ```
 
-Enviar comandos Bedrock sem / inicial. Desconectar com Ctrl+P, depois Ctrl+Q. **Não usar Ctrl+C**, que pode interromper o servidor.
+Comandos Bedrock sem / inicial. Sair com **Ctrl+P, depois Ctrl+Q**. **Não usar Ctrl+C** no console anexado.
 
-Para gerar comandos, executar da raiz do repositório, com coordenadas revisadas:
+As automações distinguem simulação, envio e confirmação. O runner exige backup antes da execução real, trabalha com um comando por chamada e limita fill verificado a 64 blocos. A importação por pack é um fluxo separado. Consulte os limites antes de executar: fill, setblock e structure load podem sobrescrever construções.
+
+Testes previstos, da raiz em Linux com dependências preparadas:
 
 ```bash
-python3 scripts/build-hero-base.py --x 100 --y 70 --z 100
+python3 -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-Isso apenas gera scripts/hero-base.commands.txt; não modifica o servidor. As coordenadas são ilustrativas. Revisar a área afetada e os comandos para a versão instalada, fazer backup e aplicar de maneira controlada: fill e setblock podem sobrescrever construções.
+Não é necessário introduzir pytest. A tentativa histórica com pytest falhou por módulo ausente. Esta atualização não executou a suíte nem testes na VPS. O leitor depende de amulet_nbt/leveldb e o backup usa fcntl; veja [dependências e limites](docs/IMPLEMENTACAO.md#testes-unittest-e-dependências).
 
-## Mundos, privacidade e reversão
+## Segurança e continuidade
 
-O repositório é público. Nenhum save da VPS acompanha esta preparação. A pasta mundos/ não é montada pelo Compose; importar nela uma cópia não muda o mundo ativo. Saves podem expor inventários, nomes, identificadores e construções privadas. Git não substitui backup e mundos grandes ou com alterações frequentes podem ser inadequados para ele. Consulte [mundos/README.md](mundos/README.md) antes de adicionar dados.
+Backups e saves ficam fora do Git; não publicar credenciais, chaves, identificadores de jogadores, IPs privados ou dados do mundo. .gitignore não protege dados já rastreados. Fazer backup antes de alterações extensas, resets, atualização ou implantação de packs e validar restauração isoladamente.
 
-Para reverter somente uma alteração de documentação/ignore, usar git revert com o SHA do commit correspondente e revisar o resultado antes de enviar. Isso não restaura nem altera a VPS. Voltar o código não restaura mundos nem desfaz uma migração de versão; restauração operacional exige backup validado e procedimento específico.
+A VPS contém outros serviços de produção. Restringir operações ao serviço minecraft/container blocktopia; não parar serviços globais nem executar limpezas Docker indiscriminadas. Git revert desfaz código/documentação, não restaura mundos ou versões migradas.
 
-Referências: [imagem do servidor](https://github.com/itzg/docker-minecraft-bedrock-server) e [Docker Compose](https://docs.docker.com/compose/).
+Referências: [imagem do servidor](https://github.com/itzg/docker-minecraft-bedrock-server), [Docker Compose](https://docs.docker.com/compose/) e [estruturas em Behavior Packs](https://learn.microsoft.com/en-us/samples/microsoft/minecraft-samples/structure-blocks-sample-behavior-pack/).
