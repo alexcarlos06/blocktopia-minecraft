@@ -85,3 +85,15 @@ Registrar por feature: objetivo, arquivos, commit, execução (ou “não execut
 ## Continuidade — preparação do Capítulo 1
 
 Plano documental alinhado à main em `24878ad8c03f014630fb3e6bbbb8f329a3c18629`: [PLANO-CAPITULO-01.md](PLANO-CAPITULO-01.md). A base histórica das seções anteriores foi preservada. Nenhum cenário novo foi construído ou confirmado nesta atualização; catálogo permanece vazio, inspeção visual da casa pendente e nenhuma operação na VPS. Próxima ação: inspecionar casa e decidir região da vila versus acampamento, seguindo backup, seleção, validação e construção manual controlada.
+
+## Continuidade — organização da história inicial
+
+Referência: 12/10/2026 (America/Sao_Paulo), sobre a base `e3a11c349eb2c0375a84c8bad0838c7342297279`. Entrega documental em [historia/README.md](historia/README.md): capítulo, missão, contexto, requisitos de construção, scripts planejados e validação. Os critérios e procedimentos de teste antes contidos no plano foram centralizados nessa pasta; o plano mantém sequência, dependências e preparação operacional. [AGENTS.md](../AGENTS.md) orienta futuras alterações sem reproduzir a documentação.
+
+Os textos locais citados no histórico e BLOCKTOPIA-CONTEXTO.md não estavam disponíveis no checkout. A redação narrativa é proposta para revisão, com origem e limites registrados em [Contexto e decisões](historia/CONTEXTO-E-DECISOES.md).
+
+- **Documentado:** Capítulo 1 — O Chamado de Blocktopia, Missão 001 — Um Lar em Blocktopia, Vila Central medieval, Guilda dos Exploradores e Desaparecimento dos Guardiões.
+- **Pendente:** revisão editorial, aprovação da recompensa e ensaio futuro em Bedrock/PS4 conforme [Validação](historia/VALIDACAO.md).
+- **Não executado nesta entrega:** scripts de jogo, testes de integração, acesso à VPS/containers/dados persistentes/backups, construção ou deploy. Verificações documentais efetivamente realizadas ficam registradas no PR.
+
+Não há novas coordenadas ou confirmação de implantação. As pendências operacionais anteriores permanecem; não se cadastraram locais nem se alteraram configurações, packs ou scripts.

@@ -9,7 +9,7 @@ Preparar uma aventura cooperativa jogável para Henry e Nicolas: Acampamento Ini
 
 A história inicial já existe no projeto. Este plano organiza sua preparação física e operacional; não substitui a narrativa por uma nova. A conversa “Instruções para construir” (6acba3af-c0c4-83e8-8024-5802d71930e0) foi consultada: o texto recuperado confirma construir a casa primeiro e planejar automação depois; respostas antigas vieram como referências internas sem conteúdo integral. O escopo MVP acima foi explicitado pelo administrador no pedido atual.
 
-Também foram lidos o contexto local BLOCKTOPIA-CONTEXTO.md e os arquivos locais historia/CONTEXTO-E-DECISOES.md, CAPITULO-01.md e MISSAO-001-UM-LAR.md. Eles distinguem decisões narrativas de propostas. Não estão presentes na main auditada e seus caminhos não são dependências disponíveis neste checkout. Detalhes operacionais abaixo são propostas de implementação até aprovação/validação, não confirmação de decisões antigas.
+A revisão original deste plano registrou leitura do contexto local BLOCKTOPIA-CONTEXTO.md e dos arquivos locais historia/CONTEXTO-E-DECISOES.md, CAPITULO-01.md e MISSAO-001-UM-LAR.md. Esses originais não estavam disponíveis na revisão documental de 12/10/2026 e não foram recuperados. A organização atual em [docs/historia](historia/README.md) explicita as fontes disponíveis e apresenta redação narrativa proposta para revisão, sem atribuí-la aos originais. Detalhes operacionais abaixo continuam propostas até aprovação/validação.
 
 ## Evidências e checklist de continuidade
 
@@ -83,19 +83,7 @@ Infraestrutura de referência: checkout /home/alexcsousa/projects/minecraft-bedr
 
 ## Critérios de aceite por cenário
 
-| Cenário | Mínimo proposto | Aceite verificável |
-| --- | --- | --- |
-| Casa importada | Estrutura existente identificada | Adulto visita 137 120 176, confere solo/fundação, portas, teto, iluminação, entorno, colisões e interior; registra problemas e uso aprovado |
-| Acampamento Inicial | Abrigo de chegada, descanso para participantes, baú de apoio, bancada, luz e mensagem inicial | Acesso fácil; camas/baú/bancada utilizáveis; fogo protegido se usado; recursos modestos; placa legível no PS4 aponta a trilha |
-| Trilha dos Exploradores | Caminho curto adaptado ao relevo, sinais/luzes nos cruzamentos e pontos de retorno | Adulto percorre ida e volta a pé em Survival; não depende de voo, OP ou teleporte; sem saltos obrigatórios ou bifurcações sem orientação |
-| Ponte dos Viajantes | Travessia funcional com entrada/saída acessíveis e proteção lateral | Adulto atravessa nos dois sentidos; sem buracos, saltos ou desembarque perigoso; inspeciona água, corrente, quedas e iluminação |
-| Vila Central mínima | Pequena praça, ponto da Guilda com mural, abrigo público e espaço livre para os jogadores | Entrada conectada à trilha; mural acessível; lote não invade caminho/terceiros; decoração e biblioteca completas podem esperar |
-| Missão 001 | Escolher local e criar/ampliar lar próprio cooperativamente | Abrigo coberto com entrada fechável, camas dos residentes, baú, bancada, iluminação, detalhe criativo e contribuição de cada criança; adulto valida |
-| Ponta a ponta | Chegada → percurso → mural → lar → reconhecimento | Jogadores member no PS4 compreendem próximo passo; adulto consegue conduzir sem automação; nenhuma etapa depende de cenário inexistente |
-
-Iluminação reduz risco; não promete invulnerabilidade. A casa pública importada não conclui automaticamente a missão: as crianças coletam/fabricam/construem e escolhem a aparência do próprio lar. Permitir ajuda gradual, pausas e participação posterior, sem prazo ou combate obrigatório.
-
-Recompensa proposta: reconhecimento narrativo e poucos consumíveis, entregues uma vez por participante após vistoria. O pacote local sugere 4 pães e 4 tochas; quantidades ainda dependem de aprovação. Registrar participante/contribuição/data/validador/entrega em controle privado, sem publicar gamertags. Pista seguinte só se seu destino estiver pronto.
+Consultar [requisitos de construção](historia/REQUISITOS-DE-CONSTRUCAO.md) para os mínimos de cada cenário, critérios da Missão 001, direção medieval da vila e proposta de recompensa. Essa é a fonte dos requisitos; este plano mantém sequência, dependências e procedimento de preparação.
 
 ## Procedimento futuro de construção manual controlada
 
@@ -123,31 +111,7 @@ No console, comandos sem / inicial. Desconectar com Ctrl+P, depois Ctrl+Q; nunca
 
 ## Testes e registro de evidências
 
-### Código
-
-Após preparar dependências em Linux isolado, executar da raiz:
-
-```bash
-python3 -m unittest discover -s tests -p 'test_*.py' -v
-```
-
-Revisar especialmente test_site_locator.py, test_location_registry.py, test_terrain_reader.py, test_foundation.py, test_foundation_commands.py, test_backup_world.py e testes construction/bedrock de envio, divergência e verificação. Existem 24 arquivos de testes na base. A suíte usa unittest/mock; pytest não é pré-requisito.
-
-Dependências do leitor: amulet_nbt e leveldb; backup usa fcntl (Linux). A main não fixa dependências Python. Registrar versões e falhas de importação; não omitir falhas para declarar aprovação. Nesta entrega documental, testes foram inspecionados, **não executados**; não houve teste de integração ou VPS.
-
-### Ensaio do capítulo
-
-- [ ] Confirmar backup recuperável e cenários aprovados.
-- [ ] Entrar por cliente Bedrock/PS4 autorizado com permissão member.
-- [ ] Percorrer acampamento → trilha → ponte → vila e retorno, sem OP/voo/teleporte.
-- [ ] Conferir placas no PS4, pontos de confusão, iluminação e riscos de dia/noite; não exigir que crianças passem noite em perigo.
-- [ ] Simular aceite e recusa da missão com adulto: lar incompleto recebe dica, sem recompensa; completo recebe reconhecimento e recompensa uma vez.
-- [ ] Simular chegada posterior de outro participante e impedir recompensa duplicada sem bloquear sua participação.
-- [ ] Confirmar que crianças podem construir o próprio lar sem ocupar espaços públicos.
-- [ ] Registrar ajustes; repetir apenas cenários afetados.
-- [ ] Autorizar início da sessão familiar após todos os bloqueios resolvidos.
-
-Registro técnico por etapa: data real, SHA, mundo/versão, cenário, coordenadas/footprint/orientação, backup privado, comando se houve, trecho de resposta sanitizado, inspeção, resultado, pendências e responsável. Git guarda documentação e referências sanitizadas, nunca save, backup, .env, tokens, chaves, IPs privados ou identificadores pessoais.
+Os procedimentos foram centralizados em [historia/VALIDACAO.md](historia/VALIDACAO.md): revisão documental, testes de código quando aplicáveis, ensaio futuro em Bedrock/PS4 e registro de evidências. A publicação deste plano não executa essas etapas no jogo.
 
 ## Riscos, implantação e rollback
 

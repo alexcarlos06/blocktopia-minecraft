@@ -12,14 +12,17 @@ A documentação foi conferida contra a main em `3e52f72a8cc99a570945ba8ca1a69a1
 
 ## Documentação
 
-- [Plano do Capítulo 1](docs/PLANO-CAPITULO-01.md): MVP jogável, cenários, Missão 001, critérios de aceite e construção manual controlada.
+- [História de Blocktopia](docs/historia/README.md): Capítulo 1 — O Chamado de Blocktopia, Missão 001 — Um Lar em Blocktopia, Vila Central medieval, Guilda dos Exploradores e Desaparecimento dos Guardiões; narrativa proposta separada de requisitos, scripts planejados e validação.
+- [Plano do Capítulo 1](docs/PLANO-CAPITULO-01.md): sequência de preparação do MVP, dependências e construção manual controlada.
 - [Status e checklist](docs/STATUS.md): evidências, pendências e prioridades.
 - [Implementação e operação](docs/IMPLEMENTACAO.md): Docker, backups, terreno, construção, testes, packs, implantação e reversão.
+- [Instruções para o Codex](AGENTS.md): escopo, fontes e regras permanentes de trabalho no repositório.
 - [Orientações históricas sobre cópias de mundos](mundos/README.md): consistência e privacidade. Manter saves e backups privados; esta entrega não inclui dados do mundo.
 
 ## Estrutura atual
 
 ```text
+AGENTS.md
 compose.yaml
 .env.example
 .gitignore
@@ -27,6 +30,8 @@ config/adventure-locations.json
 docs/
   STATUS.md
   IMPLEMENTACAO.md
+  PLANO-CAPITULO-01.md
+  historia/                   # narrativa, requisitos, planejamento e validação
 scripts/
   admin/bedrock-command.sh
   backup/backup-world.py
