@@ -12,6 +12,7 @@ A documentação foi conferida contra a main em `3e52f72a8cc99a570945ba8ca1a69a1
 
 ## Documentação
 
+- [Plano do Capítulo 1](docs/PLANO-CAPITULO-01.md): MVP jogável, cenários, Missão 001, critérios de aceite e construção manual controlada.
 - [Status e checklist](docs/STATUS.md): evidências, pendências e prioridades.
 - [Implementação e operação](docs/IMPLEMENTACAO.md): Docker, backups, terreno, construção, testes, packs, implantação e reversão.
 - [Orientações históricas sobre cópias de mundos](mundos/README.md): consistência e privacidade. Manter saves e backups privados; esta entrega não inclui dados do mundo.

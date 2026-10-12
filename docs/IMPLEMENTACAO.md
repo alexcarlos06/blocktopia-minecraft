@@ -139,10 +139,10 @@ Procedimento para futura implantação revisada:
 2. Copiar o diretório do pack para a área behavior_packs dos dados do servidor, preservando manifest e caminho structures.
 3. Mesclar a ativação em `worlds/Blocktopia/world_behavior_packs.json` usando UUID do **header** e versão [1,0,0]; preservar outros packs e validar JSON. Não substituir a lista inteira por um único pack.
 4. Programar reinício somente do serviço minecraft se necessário para carregar a alteração, conferir logs de packs e compatibilidade.
-5. Revisar origem, orientação e volume afetado antes do comando de carga. Exemplo de sintaxe a validar na versão instalada: `structure load blocktopia:casa_inicial 137 120 176`. Este exemplo não comprova qual asset foi usado historicamente e **não deve ser repetido para validar a casa existente**.
+5. Revisar origem, orientação e volume afetado antes do comando de carga. Exemplo de sintaxe a validar na versão instalada: `structure load blocktopia:casa_inicial 137 120 176`. O administrador esclareceu nesta continuidade o identificador `blocktopia:casa_inicial`; o comando **não deve ser repetido para validar a casa existente**.
 6. Conferir console, inspeção visual e cadastro conforme STATUS.
 
-O administrador confirmou “Loaded a structure” em 137 120 176. Inspeção visual e registro continuam pendentes. Remover/desativar o pack não remove blocos já colocados. Para desfazer carga, usar recuperação revisada de backup anterior; não limpar a área com fill air indiscriminadamente.
+O administrador confirmou a linha “Loaded a structure of name blocktopia:casa_inicial” em 137 120 176. Inspeção visual e registro continuam pendentes. Remover/desativar o pack não remove blocos já colocados. Para desfazer carga, usar recuperação revisada de backup anterior; não limpar a área com fill air indiscriminadamente.
 
 ## Testes unittest e dependências
 
