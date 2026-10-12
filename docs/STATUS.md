@@ -17,9 +17,10 @@ Fontes: arquivos reais da main; BLOCKTOPIA-CONTEXTO.md fornecido como referênci
 ## Última feature implementada — importação da casa por Behavior Pack
 
 - [x] **Versionado:** pack `packs/blocktopia-structures/`, manifest, licença e estruturas `casa_inicial.mcstructure` e `house1.mcstructure`.
-- [x] **Executado e confirmado na VPS por relato do administrador:** importação da casa .mcstructure por Behavior Pack, com resposta **“Loaded a structure”**, na origem **137 120 176**.
+- [x] **Executado e confirmado na VPS por relato do administrador:** importação da casa .mcstructure por Behavior Pack, com resposta **“Loaded a structure of name blocktopia:casa_inicial”**, na origem **137 120 176**.
 - [ ] Inspecionar visualmente o resultado completo, encaixe no terreno, orientação, acessos e elementos internos.
-- [ ] Vincular ao registro técnico o identificador exato carregado, versão do servidor, data, evidência sanitizada e backup anterior. A solicitação confirma a casa, mas não identifica qual dos dois arquivos corresponde ao comando executado.
+- [x] Identificador esclarecido pelo administrador: `blocktopia:casa_inicial`, conforme linha exata acima.
+- [ ] Vincular ao registro técnico versão do servidor, data, evidência sanitizada e backup anterior.
 - [ ] Registrar a construção no catálogo após validação.
 
 A resposta do console confirma o carregamento relatado; não comprova habitabilidade, ausência de sobreposição ou aprovação visual. Não repetir a carga apenas para obter evidência: pode sobrescrever o mundo.
@@ -64,6 +65,8 @@ Comando previsto, da raiz do checkout: `python3 -m unittest discover -s tests -p
 
 ## Próximas features priorizadas — propostas
 
+O [plano do Capítulo 1](PLANO-CAPITULO-01.md) prioriza concluir a casa e preparar acampamento, trilha, ponte, vila mínima e Missão 001 com condução manual, antes de ampliar automação. As prioridades técnicas abaixo permanecem como referência; automação completa não bloqueia o MVP.
+
 1. **P0 — concluir a feature atual:** inspeção da casa, evidências e cadastro aprovado.
 2. **P1 — continuidade:** comprovar backup/retomada e restauração isolada; definir retenção e cópia privada fora da VPS.
 3. **P1 — reprodutibilidade:** registrar dependências Python e versão exata do Bedrock/imagem; executar unittest e guardar evidência sanitizada.
@@ -78,3 +81,7 @@ O contexto registra VPS Hostinger/Ubuntu, Docker, conectividade PS4 via DNS/Bedr
 ## Regra para próximas atualizações
 
 Registrar por feature: objetivo, arquivos, commit, execução (ou “não executada”), evidência, validação, riscos e reversão. Marcar concluído apenas o que foi comprovado; separar publicação Git de implantação na VPS.
+
+## Continuidade — preparação do Capítulo 1
+
+Plano documental alinhado à main em `24878ad8c03f014630fb3e6bbbb8f329a3c18629`: [PLANO-CAPITULO-01.md](PLANO-CAPITULO-01.md). A base histórica das seções anteriores foi preservada. Nenhum cenário novo foi construído ou confirmado nesta atualização; catálogo permanece vazio, inspeção visual da casa pendente e nenhuma operação na VPS. Próxima ação: inspecionar casa e decidir região da vila versus acampamento, seguindo backup, seleção, validação e construção manual controlada.
