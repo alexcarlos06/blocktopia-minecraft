@@ -1,0 +1,15 @@
+[Unit]
+Description=Blocktopia - Aplicacao automatica de gamerules
+Wants=docker.service
+After=docker.service
+
+[Service]
+Type=simple
+User=alexcsousa
+WorkingDirectory=/home/alexcsousa/projects/minecraft-bedrock-server
+ExecStart=/home/alexcsousa/projects/minecraft-bedrock-server/scripts/admin/watch-gamerules.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
